@@ -1,0 +1,19 @@
+OCB_FLAGS   = -use-ocamlfind
+OCB = ocamlbuild $(OCB_FLAGS)
+
+gassp.native : 
+	opam config exec -- \
+	$(OCB) gassp.native
+
+
+.PHONY : hw 
+hw : gassp.native helloworld.g
+	./gassp.native -c helloworld.g > helloworld.ll 
+	llc -relocation-model=pic helloworld.ll > helloworld.s
+	cc -o helloworld helloworld.s
+
+#########
+.PHONY : clean
+clean : 
+		$(OCB) -clean
+		rm *.s *.ll *.native helloworld 
